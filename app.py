@@ -18,13 +18,15 @@ if uploaded_file:
 
             base64_image = base64.b64encode(uploaded_file.read()).decode("utf-8")
 
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": """
+            response = client.responses.create(
+    model="gpt-4o",
+    input=[
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "input_text",
+                    "text": """
 請根據這張台灣地震速報圖生成：
 
 1. 主播文稿
@@ -35,18 +37,17 @@ if uploaded_file:
 - 用「最新消息，根據中央氣象署」開頭
 - 自然像主播念
 - 使用繁體中文
-"""},
+"""
+                },
+                {
+                    "type": "input_image",
+                    "image_base64": base64_image
+                }
+            ]
+        }
+    ],
+    max_output_tokens=500
+)
 
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{base64_image}"
-                                }
-                            }
-                        ]
-                    }
-                ],
-                max_tokens=500
-            )
-
-            st.write(response.choices[0].message.content)
+result = response.output_text
+st.write(result)
